@@ -107,3 +107,4 @@ def getContentAndHeader(fName=None, url=None, download_dir=None, max_lines=None,
             'header':header,
             'status_code':status_code,
             'exception':exception}
+

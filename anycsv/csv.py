@@ -469,3 +469,4 @@ class Sniffer:
                     hasHeader -= 1
 
         return hasHeader > 0
+

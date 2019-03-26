@@ -100,7 +100,7 @@ def sniff_metadata(fName= None, url=None, content=None, header=None, sniffLines=
         res = io_tools.getContentAndHeader(fName=fName, url=url, download_dir="/tmp/", max_lines=sniffLines, timeout=timeout)
         content, header = res['content'], res['header']
 
-    
+
     logger.debug('(%s) Extracting CSV meta data ', id)
     meta = extract_csv_meta(header=header, content=content, skip_guess_encoding=skip_guess_encoding)
     logger.debug("(%s) Meta %s ", id, meta)
@@ -260,3 +260,4 @@ class UnicodeReader(CsvReader):
         unicode_ = unicode
         return [(value if isinstance(value, float_) else
                  unicode_(value, encoding, encoding_errors)) for value in row]
+

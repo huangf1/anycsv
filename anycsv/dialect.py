@@ -21,3 +21,4 @@ def guessDialect(file_content):
         'quoting': dialect.quoting,
         'skipinitialspace': dialect.skipinitialspace
     }
+

@@ -20,3 +20,4 @@ class Table():
 
     def seek_line(self, line_number):
         self.csvReader.seek_line(line_number)
+
