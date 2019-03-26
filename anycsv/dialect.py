@@ -4,7 +4,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 from anycsv import csv
 
-POSSIBLE_DELIMITERS = [',', '\t', ';', '#', ':', '|', '^']
+POSSIBLE_DELIMITERS = [',', ';', '#', ':', '|', '^']
 
 
 def guessDialect(file_content):
