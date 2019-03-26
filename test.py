@@ -1,14 +1,8 @@
 import anycsv
 import csv
 
-# filename = 'path/to/file.csv'
-# reader = anycsv.reader(filename=filename)
-
-# url = 'http://file.csv'
-# reader = anycsv.reader(url=url)
-
-content = 'a,b,c\n1,2,3\n4,5,6'
-reader = anycsv.reader(url="https://files.datapress.com/calderdale/dataset/domestic-consumption-monitor---monthly-meter-readings/2016-08-31T11:56:15/Domestic")
+#reader = anycsv.reader(filename="filename")
+reader = anycsv.reader(url="https://dev.inpher.io/datasets/correlation/test1/bank-full-X.csv")
 
 with open('testfile.csv', 'w') as f:
     writer = csv.writer(f, delimiter='|')

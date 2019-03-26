@@ -219,7 +219,7 @@ class Sniffer:
         by the same character (the probable delimiter).
         For example:
                          ,'some text',
-        The quote with the most wins, same with the delimiter.
+        The quote with the most occurences wins, same with the delimiter.
         If there is no quotechar the delimiter can't be determined
         this way.
         """
@@ -234,9 +234,6 @@ class Sniffer:
             m=regexp.findall(data)
             if len(m)>0:
                 matches.append((m, regexp))
-            #matches = regexp.findall(data)
-            #if matches:
-            #    break
 
         if not matches:
             # (quotechar, doublequote, delimiter, skipinitialspace)
