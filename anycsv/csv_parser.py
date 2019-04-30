@@ -9,7 +9,6 @@ import io
 import requests
 
 from anycsv import dialect
-from anycsv import encoding
 from anycsv.csv_model import Table
 from anycsv import io_tools
 from anycsv import exceptions
@@ -36,7 +35,7 @@ def reader(filename=None, url=None, content=None, skip_guess_encoding=False, del
     if not filename and not url and not content:
         raise exceptions.AnyCSVException('No CSV input specified')
 
-    meta = sniff_metadata(filename, url, content, skip_guess_encoding=skip_guess_encoding, sniffLines=sniff_lines, timeout=timeout)
+    meta = sniff_metadata(filename, url, content, sniffLines=sniff_lines, timeout=timeout)
     table = Table(url=url, filename=filename)
 
     table.dialect = meta['dialect']
@@ -51,8 +50,6 @@ def reader(filename=None, url=None, content=None, skip_guess_encoding=False, del
 
     if 'quotechar' in table.dialect:
         table.quotechar = table.dialect['quotechar']
-
-    table.encoding = meta['used_enc']
 
     if content:
         if max_file_size!=-1  and len(content)> max_file_size:
@@ -76,7 +73,6 @@ def reader(filename=None, url=None, content=None, skip_guess_encoding=False, del
         raise exceptions.AnyCSVException('No CSV input specified')
 
     table.csvReader = EncodedCsvReader(input,
-                                        encoding=table.encoding,
                                         delimiter=table.delimiter,
                                         quotechar=table.quotechar)
 
@@ -105,54 +101,15 @@ def sniff_metadata(fName= None, url=None, content=None, header=None, sniffLines=
 
 def extract_csv_meta(header, content=None, id='', skip_guess_encoding=False):
     logger = logging.getLogger(__name__)
-    results = {'used_enc': None,
-               'dialect': {}}
-
-    # check if guess encoding is possible
-    if not skip_guess_encoding:
-        try:
-            import anycsv.encoding
-        except Exception as e:
-
-            print('Could not import "magic" library. To support encoding detection please install python-magic.')
-            skip_guess_encoding = True
-
-    # get encoding
-    if skip_guess_encoding:
-        results['used_enc'] = DEFAULT_ENCODING
-        content_encoded = content#.decode(encoding=results['used_enc'])
-        status="META encoding"
-    else:
-        results['enc'] = encoding.guessEncoding(content, header)
-
-        content_encoded = None
-        status="META "
-        c_enc = None
-        for k in ENC_PRIORITY:
-            #we try to use the different encodings
-            try:
-                if k in results['enc'] and results['enc'][k]['encoding'] is not None:
-                    content_encoded = content.decode(encoding=results['enc'][k]['encoding'])
-                    c_enc = results['enc'][k]['encoding']
-                    status+=" encoding"
-                    break
-            except Exception as e:
-                logger.debug('(%s) ERROR Tried %s encoding: %s', results['enc'][k]['encoding'],id, e)
-        if content_encoded:
-            results['used_enc'] = c_enc
+    results = {'dialect': {}}
 
     # get dialect
     try:
-        results['dialect'] = dialect.guessDialect(content_encoded)
-        status+=" dialect"
+        results['dialect'] = dialect.guessDialect(content.decode("utf-8"))
     except Exception as e:
         logger.warning('(%s)  %s',id, e.args)
         results['dialect']={}
 
-    #if fName:
-    #    results['charset'] = encoding.get_charset(fName)
-
-    logger.debug("(%s) %s", id, status)
     return results
 
 

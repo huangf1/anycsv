@@ -8,7 +8,6 @@ class Table():
         self.csvReader = None
         self.delimiter = None
         self.quotechar = '"'
-        self.encoding = None
         self.columns = -1
         self.dialect = None
 
