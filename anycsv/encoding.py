@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, division, print_function, unicode_literals
+
 __author__ = 'jumbrich'
 
 import subprocess
@@ -80,7 +80,7 @@ def guessWithMagic(content):
     if hasattr(magic, 'detect_from_content'):
         # support for "file-magic" library
         result = magic.detect_from_content(content)
-        result = result.__dict__
+        result = result._asdict()
     else:
         # support for "filemagic" library (mac-os)
         with magic.Magic(flags=magic.MAGIC_MIME_ENCODING) as m:

@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, division, print_function, unicode_literals
+
 class Table():
     def __init__(self, filename=None, url=None):
         self.filename = filename
@@ -15,8 +15,8 @@ class Table():
     def __iter__(self):
         return self
 
-    def next(self):
-        return self.csvReader.next()
+    def __next__(self):
+        return next(self.csvReader)
 
     def seek_line(self, line_number):
         self.csvReader.seek_line(line_number)

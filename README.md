@@ -1,5 +1,5 @@
 # anycsv
-This is a robust CSV parser for Python 2 (3 is not supported), based on the
+This is a robust CSV parser for Python 3 (Python 2 is NOT supported), based on the
 default csv Python module.
 
 ## Install
@@ -9,4 +9,4 @@ default csv Python module.
 ## Run Test
 A test is included that reads a csv, changes its delimiter to '|', and writes it
 to "testfile.csv".
-Run `python test.py` to run the test.
+Run `python3 test.py` to run the test.

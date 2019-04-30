@@ -1,11 +1,11 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, division, print_function, unicode_literals
+
 
 import csv
 import os
 import logging
-import StringIO
+import io
 import requests
 
 from anycsv import dialect
@@ -57,33 +57,28 @@ def reader(filename=None, url=None, content=None, skip_guess_encoding=False, del
     if content:
         if max_file_size!=-1  and len(content)> max_file_size:
             raise exceptions.FileSizeException("Maximum file size exceeded {} > {} ".format(len(content), max_file_size))
-        input = StringIO.StringIO(content)
+        input = io.StringIO(content)
     elif filename and os.path.exists(filename):
         if filename[-3:] == '.gz':
             if max_file_size != -1 and os.stat(filename).st_size/0.4 > max_file_size: #assuming 40% compression / com/orig=0.4 -> orig = com/0.4
                 raise exceptions.FileSizeException(
                     "Maximum file size exceeded {} > {} ".format(os.stat(filename).st_size, max_file_size))
 
-            input = gzip.open(filename, 'rb')
+            input = gzip.open(filename, 'r')
         else:
             if max_file_size != -1 and os.stat(filename).st_size  > max_file_size:
                 raise exceptions.FileSizeException(
                     "Maximum file size exceeded {} > {} ".format(os.stat(filename).st_size, max_file_size))
-            input = io.open(filename, 'rb')
+            input = io.open(filename, 'r')
     elif url:
         input = URLHandle(url,max_file_size,timeout)
     else:
         raise exceptions.AnyCSVException('No CSV input specified')
 
-    if table.encoding and ('utf-8' in table.encoding or 'utf8' in table.encoding):
-        table.csvReader = UnicodeReader(input,
+    table.csvReader = EncodedCsvReader(input,
+                                        encoding=table.encoding,
                                         delimiter=table.delimiter,
                                         quotechar=table.quotechar)
-    else:
-        table.csvReader = EncodedCsvReader(input,
-                                     encoding=table.encoding,
-                                     delimiter=table.delimiter,
-                                     quotechar=table.quotechar)
 
     return table
 
@@ -151,7 +146,7 @@ def extract_csv_meta(header, content=None, id='', skip_guess_encoding=False):
         results['dialect'] = dialect.guessDialect(content_encoded)
         status+=" dialect"
     except Exception as e:
-        logger.warning('(%s)  %s',id, e.message)
+        logger.warning('(%s)  %s',id, e.args)
         results['dialect']={}
 
     #if fName:
@@ -177,19 +172,19 @@ class URLHandle:
         if offset < self._count:
             self._init()
         while offset < self._count:
-            self.next()
+            next(self)
 
     def __iter__(self):
         return self
 
-    def next(self):
-        next = self.input.next()
-        self._count += len(next)
+    def __next__(self):
+        nxt = next(self.input)
+        self._count += len(nxt)
         if self.max_file_size != -1 and self._count > self.max_file_size:
             raise exceptions.FileSizeException(
                 "Maximum file size exceeded {} > {} ".format(self._count, self.max_file_size))
 
-        return next
+        return nxt.decode("utf-8")
 
 
 class CsvReader:
@@ -212,31 +207,28 @@ class CsvReader:
 
     def _next(self):
         while self._start_line > self.line_num:
-            self.reader.next()
+            next(self.reader)
             self.line_num += 1
-        row = self.reader.next()
+        row = next(self.reader)
         self.line_num += 1
         return row
 
 
 class EncodedCsvReader(CsvReader):
-    def __init__(self, f, encoding="utf-8-sig", delimiter="\t", quotechar="'", **kwds):
+    def __init__(self, f, encoding="utf-8", delimiter="\t", quotechar="'", **kwds):
         if not quotechar:
             quotechar = "'"
         if not encoding:
-            encoding = 'utf-8-sig'
+            encoding = 'utf-8'
         if not delimiter:
-            reader = csv.reader(f, quotechar=quotechar.encode('ascii'), **kwds)
+            reader = csv.reader(f, quotechar=quotechar, **kwds)
         else:
-            reader = csv.reader(f, delimiter=delimiter.encode('ascii'), quotechar=quotechar.encode('ascii'),
+            reader = csv.reader(f, delimiter=delimiter, quotechar=quotechar,
                                      **kwds)
         CsvReader.__init__(self, f, reader, encoding)
 
-    def next(self):
-        row = self._next()
-        result = [unicode(s.decode(self.encoding)) for s in row]
-        return result
-
+    def __next__(self):
+        return self._next()
 
 class UnicodeReader(CsvReader):
     def __init__(self, f, delimiter="\t", quotechar="'", encoding='utf-8', errors='strict', **kwds):
@@ -245,19 +237,19 @@ class UnicodeReader(CsvReader):
         if not encoding:
             encoding = 'utf-8'
         if not delimiter:
-            reader = csv.reader(f, quotechar=quotechar.encode('ascii'), **kwds)
+            reader = csv.reader(f, quotechar=quotechar, **kwds)
         else:
-            reader = csv.reader(f, delimiter=delimiter.encode('ascii'), quotechar=quotechar.encode('ascii'),
+            reader = csv.reader(f, delimiter=delimiter, quotechar=quotechar,
                                      **kwds)
         self.encoding_errors = errors
         CsvReader.__init__(self, f, reader, encoding)
 
-    def next(self):
+    def __next__(self):
         row = self._next()
         encoding = self.encoding
         encoding_errors = self.encoding_errors
         float_ = float
-        unicode_ = unicode
+        unicode_ = str
         return [(value if isinstance(value, float_) else
-                 unicode_(value, encoding, encoding_errors)) for value in row]
+                  unicode_(value, encoding, encoding_errors)) for value in row]
 

@@ -1,7 +1,7 @@
 import anycsv
 import csv
 
-#reader = anycsv.reader(filename="filename")
+#reader = anycsv.reader(filename="data.csv")
 reader = anycsv.reader(url="https://dev.inpher.io/datasets/correlation/test1/bank-full-X.csv")
 
 with open('testfile.csv', 'w') as f:
