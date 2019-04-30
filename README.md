@@ -1,6 +1,6 @@
 # anycsv
 This is a robust CSV parser for Python 3 (Python 2 is NOT supported), based on the
-default csv Python module.
+default csv Python module. It can automatically detect delimiters of CSV files.
 
 ## Install
 1. `git clone git@github.com:inpher/anycsv.git`
