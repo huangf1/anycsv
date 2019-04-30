@@ -4,7 +4,7 @@ default csv Python module.
 
 ## Install
 1. `git clone git@github.com:inpher/anycsv.git`
-2. `python setup.py install`
+2. `python3 setup.py install`
 
 ## Run Test
 A test is included that reads a csv, changes its delimiter to '|', and writes it
