@@ -186,7 +186,7 @@ class Sniffer:
         delimiter1, skipinitialspace1 = self._guess_delimiter(sample,
                                                                 delimiters)
 
-        if len(delimiter1.strip()) !=0 and delimiter != delimiter1:
+        if len(delimiter1.strip(' \r\n')) !=0 and delimiter != delimiter1:
             if delimiter is None and delimiter1 is not None:
                 delimiter=delimiter1
             elif delimiter1 == ',':
